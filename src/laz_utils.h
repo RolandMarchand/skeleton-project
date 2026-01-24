@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -15,6 +16,7 @@
  * MAX(f1(),f2()), one of the two functions will be called twice. */
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define CLAMP(n, min, max) ((n) < (min) ? (min) : (n) > (max) ? (max) : (n))
 
 #if defined(__GNUC__) || defined(__clang__)
 #define unlikely(expr) __builtin_expect(!!(expr), 0)
@@ -24,7 +26,8 @@
 #define likely(expr) (expr)
 #endif
 
-static int errorf(const char *restrict format, ...);
+uint64_t get_nanoseconds(void);
+int errorf(const char *restrict format, ...);
 /* When passed with out as NULL, return the size needed in bytes to load the
  * whole file into memory, including the null terminator. A return value of < 0
  * indicates an error. When out is not NULL, write the file's contents to out
@@ -37,26 +40,13 @@ uint64_t fnv1a_64_str(const char *str);
 
 #ifdef LAZ_UTILS_IMPLEMENTATION
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-unsigned long long get_nanoseconds(void) {
-	FILETIME ft = { 0 };
-	GetSystemTimeAsFileTime(&ft);
-	unsigned long long time100ns =
-		((unsigned long long)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
-	return time100ns * 100;
-}
-#else
-#include <time.h>
-unsigned long long get_nanoseconds(void) {
+uint64_t get_nanoseconds(void) {
 	struct timespec ts = { 0 };
-	clock_gettime(CLOCK_REALTIME, &ts);
-	return (unsigned long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+	timespec_get(&ts, TIME_UTC);
+	return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
 }
-#endif
 
-static int errorf(const char *restrict format, ...)
+int errorf(const char *restrict format, ...)
 {
 	va_list args;
 	va_start(args, format);
