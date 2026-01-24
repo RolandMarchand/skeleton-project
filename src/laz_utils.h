@@ -37,6 +37,25 @@ uint64_t fnv1a_64_str(const char *str);
 
 #ifdef LAZ_UTILS_IMPLEMENTATION
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+unsigned long long get_nanoseconds(void) {
+	FILETIME ft = { 0 };
+	GetSystemTimeAsFileTime(&ft);
+	unsigned long long time100ns =
+		((unsigned long long)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+	return time100ns * 100;
+}
+#else
+#include <time.h>
+unsigned long long get_nanoseconds(void) {
+	struct timespec ts = { 0 };
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return (unsigned long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+#endif
+
 static int errorf(const char *restrict format, ...)
 {
 	va_list args;
