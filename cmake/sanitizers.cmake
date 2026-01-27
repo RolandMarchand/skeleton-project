@@ -1,3 +1,6 @@
+# TODO: turn into expression generators
+# Use /RTCcsu on MSVC
+
 function(enable_sanitizers)
   include(CheckCSourceCompiles)
 
