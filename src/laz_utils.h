@@ -36,10 +36,10 @@
 
 uint64_t get_nanoseconds(void);
 int errorf(const char *LAZ_RESTRICT format, ...);
-/* When passed with out as NULL, return the size needed in bytes to load the
- * whole file into memory, including the null terminator. A return value of < 0
- * indicates an error. When out is not NULL, write the file's contents to out
- * and return how many bytes were written, including the null terminator. */
+/* Can only read files <2GiB. Reading files >=2GiB is undefined behavior. When
+ * `out` is null, return the size of the buffer to allocate, including null
+ * term. Otherwise, write to `out` and return the amount of bytes written,
+ * including the null term. */
 long int load_file(const char *path, char *out);
 uint32_t fnv1a_32_buf(const void *buf, size_t len);
 uint32_t fnv1a_32_str(const char *str);
