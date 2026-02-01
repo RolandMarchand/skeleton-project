@@ -28,8 +28,10 @@
 
 #ifdef __cplusplus
 #define LAZ_RESTRICT
+#define LAZ_INIT { }
 #else
 #define LAZ_RESTRICT restrict
+#define LAZ_INIT { 0 }
 #endif
 
 uint64_t get_nanoseconds(void);
@@ -47,7 +49,7 @@ uint64_t fnv1a_64_str(const char *str);
 #ifdef LAZ_UTILS_IMPLEMENTATION
 
 uint64_t get_nanoseconds(void) {
-	struct timespec ts = { 0 };
+	struct timespec ts = LAZ_INIT;
 	timespec_get(&ts, TIME_UTC);
 	return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
 }
@@ -202,4 +204,5 @@ uint64_t fnv1a_64_str(const char *str)
 }
 
 #undef LAZ_RESTRICT
+#undef LAZ_INIT
 #endif /* LAZ_UTILS_IMPLEMENTATION */
