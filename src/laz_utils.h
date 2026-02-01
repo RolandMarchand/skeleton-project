@@ -26,8 +26,14 @@
 #define likely(expr) (expr)
 #endif
 
+#ifdef __cplusplus
+#define LAZ_RESTRICT
+#else
+#define LAZ_RESTRICT restrict
+#endif
+
 uint64_t get_nanoseconds(void);
-int errorf(const char *restrict format, ...);
+int errorf(const char *LAZ_RESTRICT format, ...);
 /* When passed with out as NULL, return the size needed in bytes to load the
  * whole file into memory, including the null terminator. A return value of < 0
  * indicates an error. When out is not NULL, write the file's contents to out
@@ -46,7 +52,7 @@ uint64_t get_nanoseconds(void) {
 	return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
 }
 
-int errorf(const char *restrict format, ...)
+int errorf(const char *LAZ_RESTRICT format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -195,4 +201,5 @@ uint64_t fnv1a_64_str(const char *str)
 	return hval;
 }
 
+#undef LAZ_RESTRICT
 #endif /* LAZ_UTILS_IMPLEMENTATION */
