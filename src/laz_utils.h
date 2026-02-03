@@ -34,24 +34,33 @@
 #define LAZ_INIT { 0 }
 #endif
 
-uint64_t get_nanoseconds(void);
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+
+u64 get_nanoseconds(void);
 int errorf(const char *LAZ_RESTRICT format, ...);
 /* Can only read files <2GiB. Reading files >=2GiB is undefined behavior. When
  * `out` is null, return the size of the buffer to allocate, including null
  * term. Otherwise, write to `out` and return the amount of bytes written,
  * including the null term. */
 long int load_file(const char *path, char *out);
-uint32_t fnv1a_32_buf(const void *buf, size_t len);
-uint32_t fnv1a_32_str(const char *str);
-uint64_t fnv1a_64_buf(const void *buf, size_t len);
-uint64_t fnv1a_64_str(const char *str);
+u32 fnv1a_32_buf(const void *buf, size_t len);
+u32 fnv1a_32_str(const char *str);
+u64 fnv1a_64_buf(const void *buf, size_t len);
+u64 fnv1a_64_str(const char *str);
 
 #ifdef LAZ_UTILS_IMPLEMENTATION
 
-uint64_t get_nanoseconds(void) {
+u64 get_nanoseconds(void) {
 	struct timespec ts = LAZ_INIT;
 	timespec_get(&ts, TIME_UTC);
-	return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
+	return (u64)ts.tv_sec * 1000000000ULL + (u64)ts.tv_nsec;
 }
 
 int errorf(const char *LAZ_RESTRICT format, ...)
@@ -143,14 +152,14 @@ long int load_file(const char *path, char *out)
 #define FNV1A_64_PRIME 0x100000001b3ULL
 #define FNV1A_64_INITIAL_VAL 0xcbf29ce484222325ULL
 
-uint32_t fnv1a_32_buf(const void *buf, size_t len)
+u32 fnv1a_32_buf(const void *buf, size_t len)
 {
 	const unsigned char *bp = (const unsigned char *)buf;
 	const unsigned char *be = bp + len;
-	uint32_t hval = FNV1A_32_INITIAL_VAL;
+	u32 hval = FNV1A_32_INITIAL_VAL;
 
 	for (; bp < be; bp++) {
-		hval ^= (uint32_t)bp[0];
+		hval ^= (u32)bp[0];
 		hval *= FNV1A_32_PRIME;
 		/* Force 32-bit behavior for if you plan to replace uint32_t
 		 * with unsigned long for c89 compatibility */
@@ -160,13 +169,13 @@ uint32_t fnv1a_32_buf(const void *buf, size_t len)
 	return hval;
 }
 
-uint32_t fnv1a_32_str(const char *str)
+u32 fnv1a_32_str(const char *str)
 {
 	const unsigned char *s = (const unsigned char *)str;
-	uint32_t hval = FNV1A_32_INITIAL_VAL;
+	u32 hval = FNV1A_32_INITIAL_VAL;
 
 	for (; s[0] != '\0'; s++) {
-		hval ^= (uint32_t)s[0];
+		hval ^= (u32)s[0];
 		hval *= FNV1A_32_PRIME;
 		/* Force 32-bit behavior for if you plan to replace uint32_t
 		 * with unsigned long for c89 compatibility */
@@ -176,27 +185,27 @@ uint32_t fnv1a_32_str(const char *str)
 	return hval;
 }
 
-uint64_t fnv1a_64_buf(const void *buf, size_t len)
+u64 fnv1a_64_buf(const void *buf, size_t len)
 {
 	const unsigned char *bp = (const unsigned char *)buf;
 	const unsigned char *be = bp + len;
-	uint64_t hval = FNV1A_64_INITIAL_VAL;
+	u64 hval = FNV1A_64_INITIAL_VAL;
 
 	for (; bp < be; bp++) {
-		hval ^= (uint64_t)bp[0];
+		hval ^= (u64)bp[0];
 		hval *= FNV1A_64_PRIME;
 	}
 
 	return hval;
 }
 
-uint64_t fnv1a_64_str(const char *str)
+u64 fnv1a_64_str(const char *str)
 {
 	const unsigned char *s = (const unsigned char *)str;
-	uint64_t hval = FNV1A_64_INITIAL_VAL;
+	u64 hval = FNV1A_64_INITIAL_VAL;
 
 	for (; s[0] != '\0'; s++) {
-		hval ^= (uint64_t)s[0];
+		hval ^= (u64)s[0];
 		hval *= FNV1A_64_PRIME;
 	}
 
