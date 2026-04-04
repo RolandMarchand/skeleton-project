@@ -54,6 +54,11 @@ u32 fnv1a_32_buf(const void *buf, size_t len);
 u32 fnv1a_32_str(const char *str);
 u64 fnv1a_64_buf(const void *buf, size_t len);
 u64 fnv1a_64_str(const char *str);
+/* These functions will perror and EXIT_FAILURE if no memory is returned */
+void *malloc_try(size_t size);
+void *calloc_try(size_t n, size_t size);
+void *realloc_try(void *ptr, size_t size);
+void *reallocarray_try(void *ptr, size_t n, size_t size);
 
 #ifdef LAZ_UTILS_IMPLEMENTATION
 
@@ -210,6 +215,54 @@ u64 fnv1a_64_str(const char *str)
 	}
 
 	return hval;
+}
+
+void *malloc_try(size_t size)
+{
+	void *mem = malloc(size);
+
+	if (mem == NULL) {
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+
+	return mem;
+}
+
+void *calloc_try(size_t n, size_t size)
+{
+	void *mem = calloc(n, size);
+
+	if (mem == NULL) {
+		perror("calloc");
+		exit(EXIT_FAILURE);
+	}
+
+	return mem;
+}
+
+void *realloc_try(void *ptr, size_t size)
+{
+	void *mem = realloc(ptr, size);
+
+	if (mem == NULL) {
+		perror("realloc");
+		exit(EXIT_FAILURE);
+	}
+
+	return mem;
+}
+
+void *reallocarray_try(void *ptr, size_t n, size_t size)
+{
+	void *mem = reallocarray(ptr, n, size);
+
+	if (mem == NULL) {
+		perror("reallocarray");
+		exit(EXIT_FAILURE);
+	}
+
+	return mem;
 }
 
 #undef LAZ_RESTRICT
