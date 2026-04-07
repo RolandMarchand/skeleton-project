@@ -31,9 +31,24 @@
 #endif
 
 #ifdef __cplusplus
+#define LAZ_NORETURN [[noreturn]]
 #define LAZ_RESTRICT
 #define LAZ_INIT { }
-#else
+#elif __STDC_VERSION__ >= 202311L /* C23 */
+#define LAZ_NORETURN [[noreturn]]
+#define LAZ_RESTRICT restrict
+#define LAZ_INIT { }
+#elif __STDC_VERSION__ >= 201112L /* C11 */
+#include <stdnoreturn.h>
+#define LAZ_NORETURN noreturn
+#define LAZ_RESTRICT restrict
+#define LAZ_INIT { 0 }
+#elif _MSC_VER
+#define LAZ_NORETURN __declspec(noreturn)
+#define LAZ_RESTRICT restrict
+#define LAZ_INIT { 0 }
+#else /* C99 */
+#define LAZ_NORETURN
 #define LAZ_RESTRICT restrict
 #define LAZ_INIT { 0 }
 #endif
@@ -53,6 +68,7 @@ u64 get_nanoseconds(void);
 #endif
 
 int errorf(const char *LAZ_RESTRICT format, ...);
+LAZ_NORETURN void panicf(const char *LAZ_RESTRICT format, ...);
 /* Can only read files <2GiB. Reading files >=2GiB is undefined behavior. When
  * `out` is null, return the size of the buffer to allocate, including null
  * term. Otherwise, write to `out` and return the amount of bytes written,
@@ -89,6 +105,17 @@ int errorf(const char *LAZ_RESTRICT format, ...)
 
 	va_end(args);
 	return ret;
+}
+
+LAZ_NORETURN void panicf(const char *LAZ_RESTRICT format, ...)
+{
+	va_list args;
+	va_start(args, format);
+
+	(void)vfprintf(stderr, format, args);
+
+	va_end(args);
+	abort();
 }
 
 long int load_file(const char *path, char *out)
@@ -281,4 +308,5 @@ void *reallocarray_try(void *ptr, size_t n, size_t size)
 
 #undef LAZ_RESTRICT
 #undef LAZ_INIT
+#undef LAZ_NORETURN
 #endif /* LAZ_UTILS_IMPLEMENTATION */
