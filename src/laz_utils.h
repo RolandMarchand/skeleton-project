@@ -4,6 +4,10 @@
  * Single-header C library for C99 development.
  * Use `#define LAZ_UTILS_IMPLEMENTATION` before using. */
 
+#if !defined(__STDC_VERSION__) && !defined(_MSC_VER) && __cplusplus < 201103L /* <C++11 */
+#error "This library only supports >=C99 and >=C++11"
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
