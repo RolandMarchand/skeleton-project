@@ -113,6 +113,7 @@ LAZ_NORETURN void panicf(const char *LAZ_RESTRICT format, ...)
 	va_start(args, format);
 
 	(void)vfprintf(stderr, format, args);
+	fflush(stderr);
 
 	va_end(args);
 	abort();
