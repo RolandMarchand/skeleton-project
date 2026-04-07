@@ -47,7 +47,11 @@ typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
 
+/* C11+ only stuff */
+#if __STDC_VERSION__ >= 201112L
 u64 get_nanoseconds(void);
+#endif
+
 int errorf(const char *LAZ_RESTRICT format, ...);
 /* Can only read files <2GiB. Reading files >=2GiB is undefined behavior. When
  * `out` is null, return the size of the buffer to allocate, including null
@@ -62,15 +66,19 @@ u64 fnv1a_64_str(const char *str);
 void *malloc_try(size_t size);
 void *calloc_try(size_t n, size_t size);
 void *realloc_try(void *ptr, size_t size);
+#if defined(_DEFAULT_SOURCE) || defined(_GNU_SOURCE) /* GNU C */
 void *reallocarray_try(void *ptr, size_t n, size_t size);
+#endif
 
 #ifdef LAZ_UTILS_IMPLEMENTATION
 
+#if __STDC_VERSION__ >= 201112L /* >=C11 */
 u64 get_nanoseconds(void) {
 	struct timespec ts = LAZ_INIT;
 	timespec_get(&ts, TIME_UTC);
 	return (u64)ts.tv_sec * 1000000000ULL + (u64)ts.tv_nsec;
 }
+#endif
 
 int errorf(const char *LAZ_RESTRICT format, ...)
 {
@@ -257,6 +265,7 @@ void *realloc_try(void *ptr, size_t size)
 	return mem;
 }
 
+#if defined(_DEFAULT_SOURCE) || defined(_GNU_SOURCE)
 void *reallocarray_try(void *ptr, size_t n, size_t size)
 {
 	void *mem = reallocarray(ptr, n, size);
@@ -268,6 +277,7 @@ void *reallocarray_try(void *ptr, size_t n, size_t size)
 
 	return mem;
 }
+#endif
 
 #undef LAZ_RESTRICT
 #undef LAZ_INIT
